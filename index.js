@@ -1,3 +1,4 @@
-import pageLoader from './src/pageLoader.js'
+import loader from './src/loader.js'
+import { defaultDir } from './src/filePaths.js'
 
-export default (filepath, output) => pageLoader(filepath, output)
+export default (url, output = defaultDir('tmp')) => loader(url, output)
