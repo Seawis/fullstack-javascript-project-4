@@ -11,6 +11,6 @@ program
   .argument('url', 'URL for saving')
   .option('-o, --output [dir]', 'output dir', defaultDir('tmp'))
   .action((url) => {
-    loader(url, program.opts().output)
+    loader(url, program.opts().output).then(console.log)
   })
   .parse()
