@@ -2,3 +2,4 @@
 *.log
 /asciinema/
 /tmp
+/coverage
