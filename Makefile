@@ -21,3 +21,9 @@ run:
 
 help:
 	node bin/page-loader.js -h
+
+test-path:
+	npx jest -- -t 'loadPaths'
+
+test-load:
+	npx jest -- -t 'loader'

@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 import { program } from 'commander'
+
+import { defaultDir } from '../src/loadPaths.js'
 import loader from '../src/loader.js'
-import { defaultDir } from '../src/filePaths.js'
+// import loadResources from '../src/loadResources.js'
 
 program
   .name('page-loader')
@@ -11,6 +13,7 @@ program
   .argument('url', 'URL for saving')
   .option('-o, --output [dir]', 'output dir', defaultDir('tmp'))
   .action((url) => {
-    loader(url, program.opts().output).then(console.log)
+    loader(url, program.opts().output)
+    // loadResources()
   })
   .parse()

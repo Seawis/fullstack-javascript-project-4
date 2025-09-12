@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "axios": "^1.11.0",
+    "cheerio": "^1.1.2",
     "commander": "^14.0.0",
     "eslint-plugin-jest": "^29.0.1"
   }
