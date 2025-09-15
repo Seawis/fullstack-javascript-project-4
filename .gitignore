@@ -3,3 +3,5 @@
 /asciinema/
 /tmp
 /coverage
+./src/loadResources.js
+./__tests__/Mock.test.js
