@@ -1,16 +1,21 @@
 import nock from 'nock'
 import fsp from 'fs/promises'
-
+import prettier from 'prettier'
 import { fileURLToPath } from 'url'
 import path, { dirname } from 'path'
 import { tmpdir } from 'os'
 
 import loader from '../src/loader.js'
-import axios from 'axios'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const getFixturePath = filename =>
   path.join(__dirname, '..', '__fixtures__', filename)
+
+const formatedHtmlPromise = path => fsp.readFile(path, 'utf8')
+  .then(html => prettier.format(html, { parser: 'html' }))
+  .catch((err) => {
+    throw new Error(err)
+  })
 
 let dir
 beforeEach(async () => {
@@ -35,6 +40,7 @@ test('loader rejects', async () => {
 })
 
 test('loader without img', async () => {
+  const name = 'www-example-com'
   const scope = nock('http://www.example.com')
     .get('/')
     .reply(200, '<html><head></head><body>123ABC</body></html>')
@@ -63,18 +69,14 @@ test('loader with img', async () => {
     .reply(200, html)
 
   nock('https://ru.hexlet.io')
-    .get('/assets/professions/')
-    .replyWithFile(200, imagePath, { 'Content-Type': 'image/png' })
+    .get('/assets/professions/nodejs.png')
+    .reply(200, await fsp.readFile(imagePath), { 'Content-Type': 'image/png' })
 
   const files = await loader(`https://ru.hexlet.io/courses`, dir)
     .then (() => fsp.readdir(dir))
 
-  const fetchData = await fsp.readFile(`${dir}/${name}.html`, 'utf8')
-    .catch((err) => {
-      throw new Error(err)
-    })
-
-  const expected = await fsp.readFile(getFixturePath(`After/${name}.html`), 'utf-8')
+  const expected = await formatedHtmlPromise(getFixturePath(`After/${name}.html`))
+  const fetchData = await formatedHtmlPromise(`${dir}/${name}.html`)
 
   expect(files).toEqual([`${name}.html`, `${name}_files`])
   expect(fetchData).toBe(expected)

@@ -25,5 +25,8 @@ help:
 test-path:
 	npx jest -- -t 'loadPaths'
 
-test-load:
+test-loader:
 	npx jest -- -t 'loader'
+
+test-mock:
+	npx jest -- -t 'mock'

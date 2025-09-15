@@ -8,6 +8,9 @@ import axiosErrors from './axiosErrors.js'
 const loader = (url, outputDir) => {
   const p = pathForUrl(url, outputDir)
 
+  fsp.mkdir(p.fullDirPath)
+    .catch(err => console.log(err)) // Forder is already created or cannot create!
+
   return axios.get(url)
     .then(response => response.data)
     .catch((error) => {
@@ -23,26 +26,20 @@ const loader = (url, outputDir) => {
     })
     .then((responseData) => {
       const $ = cheerio.load(responseData)
+      $('img').each((i, elem) => {
+        const oldSrc = $(elem).attr('src')
 
-      fsp.mkdir(p.fullDirPath)
-        .catch(err => console.log(err)) // Forder is already created or cannot create!
+        if (oldSrc) {
+          const fileName = pathToDashed(oldSrc) // p.nameOfSite + ...
+          const newSrc = `${p.dirName}/${fileName}`
 
-        .then(() => {
-          $('img').each((i, elem) => {
-            const oldSrc = $(elem).attr('src')
+          $(elem).attr('src', newSrc)
 
-            if (oldSrc) {
-              const fileName = pathToDashed(oldSrc) // p.nameOfSite + ...
-              const newSrc = `${p.dirName}/${fileName}`
-              $(elem).attr('src', newSrc)
-
-              const oldSrcURL = new URL(oldSrc, url)
-              axios.get(oldSrcURL, { responseType: 'stream' })
-                .then(response => fsp.writeFile(`${p.dirPath}/${fileName}`, response.data))
-                .catch(axiosErrors)
-            }
-          })
-        })
+          axios.get(new URL(oldSrc, url), { responseType: 'stream' })
+            .then(response => fsp.writeFile(`${p.dirPath}/${fileName}`, response.data))
+            .catch(axiosErrors)
+        }
+      })
       return $.html()
     })
     .then(newHtml => fsp.writeFile(p.filePath, newHtml))
