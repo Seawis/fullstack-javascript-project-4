@@ -19,8 +19,8 @@ const pathForUrl = (url, outputDir) => {
     dirPath: path.join(outputDir, `${dirName}`), // .replace(/^\//, ''),
     fullDirPath: path.resolve(outputDir, `${dirName}`),
     // nameOfSite: url.match(/https?:\/\/([^/]+)/)[1].replace(/\./g, '-'),
+    url: new URL(url),
   }
-  // console.log(p)
   return p
 }
 
@@ -28,9 +28,8 @@ const pathToDashed = (inputPath) => {
   // Разделяем на имя файла и расширение
   const lastDot = inputPath.lastIndexOf('.')
   const name = lastDot !== -1 ? inputPath.slice(0, lastDot) : inputPath
-  const ext = lastDot !== -1 ? inputPath.slice(lastDot) : ''
-
-  return fName(name) + ext
+  const ext = lastDot !== -1 ? inputPath.slice(lastDot) : '.html'
+  return ext.indexOf('/') === -1 ? fName(name) + ext : null
 }
 
 export { pathForUrl, defaultDir, pathToDashed }

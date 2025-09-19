@@ -1,10 +1,13 @@
 import js from '@eslint/js'
 import globals from 'globals'
-import { defineConfig } from 'eslint/config'
+import { defineConfig, globalIgnores } from 'eslint/config'
 import stylistic from '@stylistic/eslint-plugin'
 // import pluginJest from 'eslint-plugin-jest'
 
 export default defineConfig([
+  globalIgnores([
+    'tmp/', // unignore `tmp/` directory
+  ]),
   stylistic.configs.recommended,
   {
     files: ['**/*.{js,mjs,cjs}'],

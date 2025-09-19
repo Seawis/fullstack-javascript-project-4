@@ -19,6 +19,7 @@ const expected = {
   dirPath: '/tmp/ru-hexlet-io-courses_files',
   filePath: '/tmp/ru-hexlet-io-courses.html',
   fullDirPath: '/tmp/ru-hexlet-io-courses_files',
+  url: new URL('https://ru.hexlet.io/courses/'),
 }
 
 const expectedFullPath = {
@@ -26,6 +27,7 @@ const expectedFullPath = {
   dirPath: 'tmp/ru-hexlet-io-courses_files',
   filePath: 'tmp/ru-hexlet-io-courses.html',
   fullDirPath: path.join(__dirname, '..', '/tmp/ru-hexlet-io-courses_files'),
+  url: new URL('http://ru.hexlet.io/courses'),
 }
 
 test('pathForUrl', () => {
@@ -39,4 +41,5 @@ test('pathToDashed', () => {
   expect(pathToDashed('https://ru.hexlet.io/vite/assets/logo_ru_light-BpiEA1LT.svg'))
     .toBe('ru-hexlet-io-vite-assets-logo-ru-light-BpiEA1LT.svg')
   expect(pathToDashed('/assets/professions-pro/nodejs.png')).toBe('assets-professions-pro-nodejs.png')
+  expect(pathToDashed('https://ru.hexlet.io/courses')).toBe(null)
 })
