@@ -43,4 +43,5 @@ test('pathToDashed', () => {
     .toBe('vite-assets-logo-ru-light-BpiEA1LT.svg')
   expect(pathToDashed('/assets/professions-pro/nodejs.png', hostname)).toBe('assets-professions-pro-nodejs.png')
   expect(pathToDashed('https://ru.hexlet.io/courses', hostname)).toBe(null)
+  expect(pathToDashed(1, hostname)).toBe(null)
 })

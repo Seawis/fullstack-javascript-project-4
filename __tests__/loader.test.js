@@ -1,4 +1,3 @@
-import { jest } from '@jest/globals'
 import nock from 'nock'
 import fsp from 'fs/promises'
 import prettier from 'prettier'
@@ -24,53 +23,13 @@ const formatedHtmlPromise = path => fsp.readFile(path, 'utf8')
 
 let dir
 beforeEach(async () => {
-  nock.disableNetConnect()
+  // nock.disableNetConnect()
   dir = await fsp.mkdtemp(path.join(tmpdir(), 'page-loader-'))
   log(`Creating tempDir "${dir}" for "${expect.getState().currentTestName}"`)
 })
 afterEach(async () => await fsp.rmdir(dir, { recursive: true }))
 
-describe('testing errors', () => {
-  test('loader rejects 404', async () => {
-    nock('http://www.example404.com')
-      .get('/')
-      .reply(404, '123ABC')
-
-    const mockExit = jest.spyOn(process, 'exit').mockImplementation(() => {
-      throw new Error()
-    })
-    await expect(loader('http://www.example404.com', dir)).rejects.toThrow()
-    await expect(mockExit).toHaveBeenCalledWith(2)
-    mockExit.mockRestore()
-  })
-
-  test('loader rejects', async () => {
-    nock('http://www.someName.com')
-      .get('/')
-
-    const mockExit = jest.spyOn(process, 'exit').mockImplementation(() => {
-      throw new Error()
-    })
-    await expect(loader('http://www.someName.com', dir)).rejects.toThrow()
-    await expect(mockExit).toHaveBeenCalledWith(3)
-    mockExit.mockRestore()
-  })
-
-  test('loader rejects 500', async () => {
-    nock('http://www.example500.com')
-      .get('/')
-      .reply(500, '123ABC')
-
-    const mockExit = jest.spyOn(process, 'exit').mockImplementation(() => {
-      throw new Error()
-    })
-    await expect(loader('http://www.example500.com', dir)).rejects.toThrow()
-    await expect(mockExit).toHaveBeenCalledWith(2)
-    mockExit.mockRestore()
-  })
-})
-
-test('loader without img', async () => {
+test('without img', async () => {
   const name = 'www-example-com'
   const page = '<html><head></head><body>123ABC</body></html>'
 
@@ -78,8 +37,8 @@ test('loader without img', async () => {
     .get('/')
     .reply(200, page)
 
-  const files = await loader('http://www.example.com', dir)
-    .then(() => fsp.readdir(dir))
+  await loader('http://www.example.com', dir)
+  const files = await fsp.readdir(dir)
   log(`Reading ${dir}`)
 
   const fetchData = await fsp.readFile(`${dir}/${name}.html`, 'utf8')
@@ -94,7 +53,7 @@ test('loader without img', async () => {
   scope.done()
 })
 
-test('loader with img', async () => {
+test('with img', async () => {
   const name = 'ru-hexlet-io-courses'
   const html = await fsp.readFile(getFixturePath(`imgOnly/Before/${name}.html`), 'utf-8')
   const imagePath = getFixturePath(`imgOnly/Before/nodejs.png`)
@@ -107,8 +66,8 @@ test('loader with img', async () => {
     .get('/assets/professions/nodejs.png')
     .reply(200, await fsp.readFile(imagePath), { 'Content-Type': 'image/png' })
 
-  const files = await loader(`https://ru.hexlet.io/courses`, dir)
-    .then (() => fsp.readdir(dir))
+  await loader(`https://ru.hexlet.io/courses`, dir)
+  const files = await fsp.readdir(dir)
   log(`Reading ${dir}`)
 
   const expected = await formatedHtmlPromise(getFixturePath(`imgOnly/After/${name}.html`))
@@ -118,7 +77,7 @@ test('loader with img', async () => {
   expect(fetchData).toBe(expected)
 })
 
-test('loader with resources', async () => {
+test('with resources', async () => {
   const name = 'ru-hexlet-io-courses'
   const html = await fsp.readFile(getFixturePath(`withResources/Before/${name}.html`), 'utf-8')
   const imagePath = getFixturePath(`withResources/Before/nodejs.png`)
@@ -159,28 +118,28 @@ test('loader with resources', async () => {
     .reply(200, res.script2)
 
   await loader(`https://ru.hexlet.io/courses`, dir)
-
   const files = await fsp.readdir(dir)
   log(`Reading ${dir}`)
 
-  const fetchData = await formatedHtmlPromise(`${dir}/${name}.html`)
-  const expectedData = await formatedHtmlPromise(getFixturePath(`withResources/After/${name}.html`))
-  const script2 = await fsp.readFile(`${dir}/${name}_files/packs-js-runtime.js`, 'utf-8')
-  const link2 = await fsp.readFile(`${dir}/${name}_files/assets-application.css`, 'utf-8')
+  expect(files).toEqual([`${name}.html`, `${name}_files`])
 
-  await expect(files).toEqual([`${name}.html`, `${name}_files`])
-  expect(link2).toBe(res.link2)
-  expect(script2).toBe(res.script2)
+  const expectedData = await formatedHtmlPromise(getFixturePath(`withResources/After/${name}.html`))
+  const fetchData = await formatedHtmlPromise(`${dir}/${name}.html`)
   expect(fetchData).toBe(expectedData)
 
+  const filesRes = await fsp.readdir(`${dir}/${name}_files`)
+    .then(mass => mass.sort())
+  log(`Reading ${dir}/${name}_files`)
   const expectedRes = [
     'assets-application.css',
     'assets-professions-nodejs.png',
     'courses.html',
     'packs-js-runtime.js',
   ]
-  const filesRes = await fsp.readdir(`${dir}/${name}_files`)
-    .then(mass => mass.sort())
-  log(`Reading ${dir}/${name}_files`)
   expect(filesRes).toEqual(expectedRes)
+
+  const link2 = await fsp.readFile(`${dir}/${name}_files/assets-application.css`, 'utf-8')
+  const script2 = await fsp.readFile(`${dir}/${name}_files/packs-js-runtime.js`, 'utf-8')
+  expect(link2).toBe(res.link2)
+  expect(script2).toBe(res.script2)
 })

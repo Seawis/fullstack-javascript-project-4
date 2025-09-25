@@ -28,5 +28,5 @@ test-path:
 test-loader:
 	npx jest -- -t 'loader'
 
-test-mock:
-	npx jest -- -t 'mock'
+test-error:
+	npx jest -- -t 'handling'

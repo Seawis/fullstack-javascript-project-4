@@ -15,14 +15,14 @@ const axiosErrors = (error, info) => {
 
 const savingErrors = (err) => {
   if (err.errno === -17) {
-    return console.error(`Already exists: "${err.path}"\n`)
+    return console.error(`Already exists: "${err.path}"`)
   }
   if (err.errno === -13) {
-    console.error(`Permission denied: "${err.path}"\n`)
+    console.error(`Permission denied: "${err.path}"`)
     process.exit(13)
   }
   else {
-    console.error(err)
+    console.error(`No such file or directory "${err.path}"`)
     process.exit(1)
   }
 }
