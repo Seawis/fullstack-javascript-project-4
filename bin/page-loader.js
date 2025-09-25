@@ -3,7 +3,6 @@ import { program } from 'commander'
 
 import { defaultDir } from '../src/loadPaths.js'
 import loader from '../src/loader.js'
-// import loadResources from '../src/loadResources.js'
 
 program
   .name('page-loader')
@@ -14,6 +13,5 @@ program
   .option('-o, --output [dir]', 'output dir', defaultDir('tmp'))
   .action((url) => {
     loader(url, program.opts().output)
-    // loadResources()
   })
   .parse()

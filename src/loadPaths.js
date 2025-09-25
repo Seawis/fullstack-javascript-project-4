@@ -4,7 +4,7 @@ import process from 'process'
 const fName = href => href
   .replace(/^[a-zA-Z]+:\/\//, '') // убираем http:// или https://
   .replace(/[^a-zA-Z0-9]+/g, '-') // меняем все символы на -
-  .replace(/^-+|-+$/g, '') // Убираем возможные начальные/конечные дефисы
+  .replace(/(^-+)|(-+$)/g, '') // Убираем возможные начальные/конечные дефисы
 
 const defaultDir = dirPath => path.resolve(process.cwd(), dirPath) // path.relative(process.cwd(), dirPath)
 
@@ -14,9 +14,8 @@ const pathForUrl = (url, outputDir) => {
 
   const p = {
     filePath: path.join(outputDir, `${fileName}.html`),
-    // fullFilePath: path.resolve(outputDir, `${fileName}.html`),
     dirName: dirName,
-    dirPath: path.join(outputDir, `${dirName}`), // .replace(/^\//, ''),
+    dirPath: path.join(outputDir, `${dirName}`),
     fullDirPath: path.resolve(outputDir, `${dirName}`),
     // nameOfSite: url.match(/https?:\/\/([^/]+)/)[1].replace(/\./g, '-'),
     url: new URL(url),
@@ -24,12 +23,18 @@ const pathForUrl = (url, outputDir) => {
   return p
 }
 
-const pathToDashed = (inputPath) => {
+const pathToDashed = (inputPath, hostname) => {
+  if (typeof inputPath !== 'string') return null
   // Разделяем на имя файла и расширение
   const lastDot = inputPath.lastIndexOf('.')
-  const name = lastDot !== -1 ? inputPath.slice(0, lastDot) : inputPath
-  const ext = lastDot !== -1 ? inputPath.slice(lastDot) : '.html'
-  return ext.indexOf('/') === -1 ? fName(name) + ext : null
+  const name = lastDot !== -1 ? inputPath.slice(0, lastDot) : inputPath // имя файла
+  const ext = lastDot !== -1 ? inputPath.slice(lastDot) : '.html' // расширение
+
+  if (ext.indexOf('/') !== -1) return null
+  const str = fName(name) + ext
+  const prefix = hostname.replace(/[^a-zA-Z0-9]+/g, '-') // имя сайта
+  // добавляем или удаляем имя сайта в имени
+  return str.startsWith(prefix) ? str.slice(prefix.length).replace(/^-+|-+$/g, '') : str
 }
 
 export { pathForUrl, defaultDir, pathToDashed }
