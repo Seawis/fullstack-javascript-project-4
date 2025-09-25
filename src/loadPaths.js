@@ -5,7 +5,7 @@ const fName = href => href
   .replace(/^[a-zA-Z]+:\/\//, '') // убираем http:// или https://
   .replace(/[^a-zA-Z0-9]+/g, '-') // меняем все символы на -
   .replace(/^-+/, '') // Убираем возможные начальные дефисы
-  .replace(/-+$/, '') // Убираем возможные конечные дефисы
+  .replace(/-$/, '') // Убираем возможные конечные дефисы
 
 const defaultDir = dirPath => path.resolve(process.cwd(), dirPath) // path.relative(process.cwd(), dirPath)
 
@@ -35,7 +35,7 @@ const pathToDashed = (inputPath, hostname) => {
   const str = fName(name) + ext
   const prefix = hostname.replace(/[^a-zA-Z0-9]+/g, '-') // имя сайта
   // добавляем или удаляем имя сайта в имени
-  return str.startsWith(prefix) ? str.slice(prefix.length).replace(/^-+/, '').replace(/-+$/, '') : str
+  return str.startsWith(prefix) ? str.slice(prefix.length).replace(/^-+/, '').replace(/-$/, '') : str
 }
 
 export { pathForUrl, defaultDir, pathToDashed }
