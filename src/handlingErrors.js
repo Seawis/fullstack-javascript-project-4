@@ -22,7 +22,7 @@ const savingErrors = (err) => {
     process.exit(13)
   }
   else {
-    console.error(`No such file or directory "${err.path}"`)
+    console.error(`No such file or directory "${err.path || err}"`)
     process.exit(1)
   }
 }

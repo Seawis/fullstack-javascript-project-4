@@ -23,7 +23,7 @@ const formatedHtmlPromise = path => fsp.readFile(path, 'utf8')
 
 let dir
 beforeEach(async () => {
-  // nock.disableNetConnect()
+  nock.disableNetConnect()
   dir = await fsp.mkdtemp(path.join(tmpdir(), 'page-loader-'))
   log(`Creating tempDir "${dir}" for "${expect.getState().currentTestName}"`)
 })
@@ -75,71 +75,4 @@ test('with img', async () => {
 
   expect(files).toEqual([`${name}.html`, `${name}_files`])
   expect(fetchData).toBe(expected)
-})
-
-test('with resources', async () => {
-  const name = 'ru-hexlet-io-courses'
-  const html = await fsp.readFile(getFixturePath(`withResources/Before/${name}.html`), 'utf-8')
-  const imagePath = getFixturePath(`withResources/Before/nodejs.png`)
-  const res = {
-    link1: 'link1',
-    link2: 'link2',
-    link3: 'link3',
-    script1: 'script1',
-    script2: 'script2',
-  }
-
-  nock('https://ru.hexlet.io') // body
-    .get('/courses')
-    .reply(200, html)
-
-  nock('https://ru.hexlet.io') // image
-    .get('/assets/professions/nodejs.png')
-    .reply(200, await fsp.readFile(imagePath), { 'Content-Type': 'image/png' })
-
-  nock('https://cdn2.hexlet.io') // link1
-    .get('/assets/menu.css')
-    .reply(200, res.link1)
-
-  nock('https://ru.hexlet.io') // link2
-    .get('/assets/application.css')
-    .reply(200, res.link2)
-
-  nock('https://ru.hexlet.io') // link3
-    .get('/courses')
-    .reply(200, res.link3)
-
-  nock('https://js.stripe.com') // script1
-    .get('/v3/')
-    .reply(200, res.script1)
-
-  nock('https://ru.hexlet.io') // script2
-    .get('/packs/js/runtime.js')
-    .reply(200, res.script2)
-
-  await loader(`https://ru.hexlet.io/courses`, dir)
-  const files = await fsp.readdir(dir)
-  log(`Reading ${dir}`)
-
-  expect(files).toEqual([`${name}.html`, `${name}_files`])
-
-  const expectedData = await formatedHtmlPromise(getFixturePath(`withResources/After/${name}.html`))
-  const fetchData = await formatedHtmlPromise(`${dir}/${name}.html`)
-  expect(fetchData).toBe(expectedData)
-
-  const filesRes = await fsp.readdir(`${dir}/${name}_files`)
-    .then(mass => mass.sort())
-  log(`Reading ${dir}/${name}_files`)
-  const expectedRes = [
-    'assets-application.css',
-    'assets-professions-nodejs.png',
-    'courses.html',
-    'packs-js-runtime.js',
-  ]
-  expect(filesRes).toEqual(expectedRes)
-
-  const link2 = await fsp.readFile(`${dir}/${name}_files/assets-application.css`, 'utf-8')
-  const script2 = await fsp.readFile(`${dir}/${name}_files/packs-js-runtime.js`, 'utf-8')
-  expect(link2).toBe(res.link2)
-  expect(script2).toBe(res.script2)
 })

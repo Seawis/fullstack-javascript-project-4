@@ -1,14 +1,14 @@
 import axios from 'axios'
 import fsp from 'fs/promises'
-import * as cheerio from 'cheerio'
 import debug from 'debug'
 // import axiosDebug from 'axios-debug-log'
 
 import { pathForUrl } from './loadPaths.js'
 import { axiosErrors, savingErrors } from './handlingErrors.js'
 import loadResources from './loadResources.js'
+import writeFiles from './writeFiles.js'
 /*
-// конфигурация логирования
+// конфигурация логирования axios
 axiosDebug({
   request: function (debug, config) {
     debug('Request with ' + config.headers['content-type'])
@@ -26,21 +26,51 @@ axiosDebug({
 })
 */
 const log = debug('page-loader')
-
-const loader = (url, outputDir) => {
+/*
+const loader = async (url, outputDir) => {
   log('"loader" started')
   const p = pathForUrl(url, outputDir)
 
   fsp.mkdir(p.fullDirPath)
-    .then(() => log('Created forder: ' + p.fullDirPath))
     .catch(savingErrors)
+    .then(() => log('Created forder: ' + p.fullDirPath))
 
   return axios.get(url)
-    .then(response => cheerio.load(response.data))
+    .then(response => response.data)
     .catch(err => axiosErrors(err, url))
-    .then($ => loadResources($, p))
-    .then(fixed$ => fsp.writeFile(p.filePath, fixed$.html()))
-    .then(() => log('Created file: ' + p.filePath))
+    .then(html => loadResources(html, p))
+    .then(([fixedHtml, filepaths]) => {
+      fsp.writeFile(p.filePath, fixedHtml)
+        .catch(savingErrors)
+        .then(() => log('Created file: ' + p.filePath))
+      return writeFiles(filepaths)
+    })
+}
+*/
+
+async function loader(url, outputDir) {
+  log('"loader" started')
+  const p = pathForUrl(url, outputDir)
+
+  try {
+    await fsp.mkdir(p.fullDirPath).catch(savingErrors)
+    log('Created forder: ' + p.fullDirPath)
+
+    const html = await axios.get(url)
+      .then(res => res.data)
+      .catch(err => axiosErrors(err, url))
+
+    const [fixedHtml, filepaths] = await loadResources(html, p)
+
+    await fsp.writeFile(p.filePath, fixedHtml).catch(savingErrors)
+    log('Created file: ' + p.filePath)
+    await writeFiles(filepaths)
+
+    return { ok: true, filePath: p.filePath, dir: p.fullDirPath }
+  }
+  catch (err) {
+    return { ok: false, error: err }
+  }
 }
 
 export default loader

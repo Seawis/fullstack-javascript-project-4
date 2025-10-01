@@ -18,15 +18,14 @@ beforeEach(async () => {
 afterEach(async () => await fsp.rmdir(dir, { recursive: true })
   .catch(console.err))
 
-test('rejects 404', async () => {
+test('no site 404', async () => {
   nock('http://www.example404.com')
     .get('/')
     .reply(404, '123ABC')
 
-  const mockExit = jest.spyOn(process, 'exit').mockImplementation(() => {
-    throw new Error()
-  })
-  await expect(loader('http://www.example404.com', dir)).rejects.toThrow()
+  const mockExit = jest.spyOn(process, 'exit').mockImplementation(() => {})
+  await loader('http://www.example404.com', dir)
+
   await expect(mockExit).toHaveBeenCalledWith(2)
   mockExit.mockRestore()
 })
@@ -35,28 +34,25 @@ test('rejects', async () => {
   nock('http://www.example.com')
     .get('/')
 
-  const mockExit = jest.spyOn(process, 'exit').mockImplementation(() => {
-    throw new Error()
-  })
-  await expect(loader('http://www.example.com', dir)).rejects.toThrow()
+  const mockExit = jest.spyOn(process, 'exit').mockImplementation(() => {})
+  await loader('http://www.example.com', dir)
+
   await expect(mockExit).toHaveBeenCalledWith(3)
   mockExit.mockRestore()
 })
 
-test('rejects 500', async () => {
+test('errorSite 500', async () => {
   nock('http://www.example500.com')
     .get('/')
     .reply(500, '123ABC')
 
-  const mockExit = jest.spyOn(process, 'exit').mockImplementation(() => {
-    throw new Error()
-  })
-  await expect(loader('http://www.example500.com', dir)).rejects.toThrow()
+  const mockExit = jest.spyOn(process, 'exit').mockImplementation(() => {})
+  await loader('http://www.example500.com', dir)
   await expect(mockExit).toHaveBeenCalledWith(2)
   mockExit.mockRestore()
 })
 
-test('folderError17', async () => {
+test('Folder exists 17', async () => {
   const name = 'www-exerr17-ru'
   const page = '<html><head></head><body>123ABC</body></html>'
 
@@ -80,14 +76,14 @@ test('folderError17', async () => {
   scope.done()
 })
 
-test('folderError13', async () => {
+test('Permission denied 13', async () => {
   const scope = nock('http://www.exerr13.ru')
     .get('/')
     .reply(200)
 
   const mockExit = jest.spyOn(process, 'exit').mockImplementation(() => {})
+  await loader('http://www.exerr13.ru', '/sys')
 
-  await expect(loader('http://www.exerr13.ru', '/sys')).rejects.toThrow()
   await expect(mockExit).toHaveBeenCalled()
   await expect(mockExit).toHaveBeenCalledWith(13)
 
@@ -95,7 +91,7 @@ test('folderError13', async () => {
   scope.done()
 })
 
-test('folderError1', async () => {
+test('No file Error1', async () => {
   const scope = nock('http://www.exerr1.ru')
     .get('/')
     .reply(200)
@@ -104,7 +100,7 @@ test('folderError1', async () => {
 
   await fsp.rmdir(dir)
 
-  await expect(loader('http://www.exerr1.ru', dir)).rejects.toThrow()
+  await loader('http://www.exerr1.ru', dir)
   await expect(mockExit).toHaveBeenCalled()
   await expect(mockExit).toHaveBeenCalledWith(1)
 

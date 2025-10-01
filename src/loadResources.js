@@ -1,41 +1,42 @@
-import axios from 'axios'
-import fsp from 'fs/promises'
 import debug from 'debug'
+import * as cheerio from 'cheerio'
 
 import { pathToDashed } from './loadPaths.js'
-import { axiosErrors, savingErrors } from './handlingErrors.js'
 
 const log = debug('page-loader-res')
 
-export default (cheerioData, p) => {
+export default (html, p) => {
+  const $ = cheerio.load(html)
   const linked = {
     img: 'src',
     link: 'href',
     script: 'src',
   }
 
-  for (const resource of Object.keys(linked)) {
-    log(`loading "${resource}"`)
+  const filepaths = Object.keys(linked).reduce((acc, res) => {
+    log(`loading "${res}"`)
 
-    cheerioData(resource).each((i, elem) => {
-      const oldSrc = cheerioData(elem).attr(linked[resource])
-      const newUrl = new URL(oldSrc, p.url)
+    $(res).each((i, elem) => {
+      const oldSrc = $(elem).attr(linked[res])
+      const url = new URL(oldSrc, p.url)
       const fileName = pathToDashed(oldSrc, p.url.hostname)
 
-      if (oldSrc && (p.url.hostname === newUrl.hostname) && fileName !== null) {
+      if (oldSrc && (p.url.hostname === url.hostname) && fileName !== null) {
         const newSrc = `${p.dirName}/${fileName}`
 
         log(`change "${oldSrc}" to "${newSrc}"`)
-        cheerioData(elem).attr(linked[resource], newSrc)
+        $(elem).attr(linked[res], newSrc)
 
-        return axios.get(newUrl, { responseType: 'stream' })
-          .then(response => fsp.writeFile(`${p.dirPath}/${fileName}`, response.data)
-            .catch(savingErrors))
-          .catch(err => axiosErrors(err, oldSrc))
-        // console.log(fileName, oldSrc)
+        const massOfUrl = {
+          url: url,
+          filepath: `${p.dirPath}/${fileName}`,
+          title: oldSrc,
+        }
+        acc.push(massOfUrl)
       }
     })
-  }
-  console.log('All files was loaded!')
-  return cheerioData
+    return acc
+  }, [])
+
+  return [$.html(), filepaths]
 }
