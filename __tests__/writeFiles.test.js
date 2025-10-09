@@ -23,11 +23,12 @@ beforeEach(async () => {
 afterEach(async () => await fsp.rmdir(dir, { recursive: true }))
 
 test('with resources', async () => {
-  const name = 'ru-hexlet-io-courses'
   const nameOfSite = 'https://ru.hexlet.io'
   const imagePath = getFixturePath(`withResources/Before/nodejs.png`)
-  // const html = await fsp.readFile(getFixturePath(`withResources/Before/${name}.html`), 'utf-8')
+  const path = `${dir}/ru-hexlet-io-courses_files`
+  // const html = await fsp.readFile(getFixturePath(`withResources/Before/ru-hexlet-io-courses.html`), 'utf-8')
   // nock(nameOfSite).get('/courses').reply(200, html)
+
   const res = {
     link1: 'link1',
     link2: 'link2',
@@ -63,32 +64,33 @@ test('with resources', async () => {
   const massOfUrls = [
     {
       url: new URL(`${nameOfSite}/assets/professions/nodejs.png`),
-      filepath: `${dir}/${name}_files/assets-professions-nodejs.png`,
+      filePath: `${path}/assets-professions-nodejs.png`,
       title: '/assets/professions/nodejs.png',
     },
     {
       url: new URL(`${nameOfSite}/assets/application.css`),
-      filepath: `${dir}/${name}_files/assets-application.css`,
+      filePath: `${path}/assets-application.css`,
       title: '/assets/application.css',
     },
     {
       url: new URL(`${nameOfSite}/courses`),
-      filepath: `${dir}/${name}_files/courses.html`,
+      filePath: `${path}/courses.html`,
       title: '/courses',
     },
     {
       url: new URL(`${nameOfSite}/packs/js/runtime.js`),
-      filepath: `${dir}/${name}_files/packs-js-runtime.js`,
+      filePath: `${path}/packs-js-runtime.js`,
       title: `${nameOfSite}/packs/js/runtime.js`,
     },
   ]
 
-  await fsp.mkdir(`${dir}/${name}_files`)
-  await writeFiles(massOfUrls)
+  await fsp.mkdir(path)
+  await writeFiles(massOfUrls, path)
 
-  const filesRes = await fsp.readdir(`${dir}/${name}_files`)
+  const filesRes = await fsp.readdir(path)
     .then(mass => mass.sort())
-  log(`Reading ${dir}/${name}_files`)
+  log(`Reading ${path}`)
+
   const expectedRes = [
     'assets-application.css',
     'assets-professions-nodejs.png',
@@ -97,14 +99,14 @@ test('with resources', async () => {
   ]
   expect(filesRes).toEqual(expectedRes)
 
-  const link2 = await fsp.readFile(`${dir}/${name}_files/assets-application.css`, 'utf-8')
-  const script2 = await fsp.readFile(`${dir}/${name}_files/packs-js-runtime.js`, 'utf-8')
+  const link2 = await fsp.readFile(`${path}/assets-application.css`, 'utf-8')
+  const script2 = await fsp.readFile(`${path}/packs-js-runtime.js`, 'utf-8')
   expect(link2).toBe(res.link2)
   expect(script2).toBe(res.script2)
 })
 
 test('with AxiosErrors', async () => {
-  const name = 'ru-hexlet-io-courses'
+  const path = `${dir}/ru-hexlet-io-courses_files`
   const nameOfSite = 'https://ru.hexlet.io'
   const imagePath = getFixturePath(`withResources/Before/nodejs.png`)
   const res = {
@@ -132,34 +134,34 @@ test('with AxiosErrors', async () => {
   const massOfUrls = [
     {
       url: new URL(`${nameOfSite}/assets/professions/nodejs.png`),
-      filepath: `${dir}/${name}_files/assets-professions-nodejs.png`,
+      filePath: `${path}/assets-professions-nodejs.png`,
       title: '/assets/professions/nodejs.png',
     },
     {
       url: new URL(`${nameOfSite}/assets/application.css`),
-      filepath: `${dir}/${name}_files/assets-application.css`,
+      filePath: `${path}/assets-application.css`,
       title: '/assets/application.css',
     },
     {
       url: new URL(`${nameOfSite}/courses`),
-      filepath: `${dir}/${name}_files/courses.html`,
+      filePath: `${path}/courses.html`,
       title: '/courses',
     },
     {
       url: new URL(`${nameOfSite}/packs/js/runtime.js`),
-      filepath: `${dir}/${name}_files/packs-js-runtime.js`,
+      filePath: `${path}/packs-js-runtime.js`,
       title: `${nameOfSite}/packs/js/runtime.js`,
     },
   ]
 
   const mockExit = jest.spyOn(process, 'exit').mockImplementation(() => {})
 
-  await fsp.mkdir(`${dir}/${name}_files`)
+  await fsp.mkdir(`${path}`)
   await writeFiles(massOfUrls)
 
-  const filesRes = await fsp.readdir(`${dir}/${name}_files`)
+  const filesRes = await fsp.readdir(`${path}`)
     .then(mass => mass.sort())
-  log(`Reading ${dir}/${name}_files`)
+  log(`Reading ${path}`)
   const expectedRes = [
     // 'assets-application.css',
     'assets-professions-nodejs.png',
@@ -168,7 +170,7 @@ test('with AxiosErrors', async () => {
   ]
   expect(filesRes).toEqual(expectedRes)
 
-  const script2 = await fsp.readFile(`${dir}/${name}_files/packs-js-runtime.js`, 'utf-8')
+  const script2 = await fsp.readFile(`${path}/packs-js-runtime.js`, 'utf-8')
   expect(script2).toBe(res.script2)
 
   expect(mockExit).toHaveBeenCalled()
@@ -183,12 +185,12 @@ test('with SavingErrors & findDup', async () => {
   const massOfUrls = [
     {
       url: new URL(`https://ru.hexlet.io/assets/application.css`),
-      filepath: `${dir}/ru-hexlet-io-courses_files/assets-application.css`,
+      filePath: `${dir}/ru-hexlet-io-courses_files/assets-application.css`,
       title: '/assets/application.css',
     },
     {
       url: new URL(`https://ru.hexlet.io/assets/app.css`),
-      filepath: `${dir}/ru-hexlet-io-courses_files/assets-application.css`,
+      filePath: `${dir}/ru-hexlet-io-courses_files/assets-application.css`,
       title: '/assets/app.css',
     },
   ]
@@ -198,7 +200,7 @@ test('with SavingErrors & findDup', async () => {
   await writeFiles(massOfUrls)
 
   expect(mockExit).toHaveBeenCalled()
-  expect(mockExit).toHaveBeenCalledWith(4)
+  expect(mockExit).toHaveBeenCalledWith(1)
   // await (expect(writeFiles(massOfUrls)).reject.toThrow)
   mockExit.mockRestore()
 })

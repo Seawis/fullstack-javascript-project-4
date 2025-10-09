@@ -11,7 +11,7 @@ const log = debug('page-loader-test')
 
 let dir
 beforeEach(async () => {
-  // nock.disableNetConnect()
+  nock.disableNetConnect()
   dir = await fsp.mkdtemp(path.join(tmpdir(), 'page-loader-'))
   log(`Creating tempDir "${dir}" for "${expect.getState().currentTestName}"`)
 })
@@ -23,10 +23,14 @@ test('no site 404', async () => {
     .get('/')
     .reply(404, '123ABC')
 
-  const mockExit = jest.spyOn(process, 'exit').mockImplementation(() => {})
+  const mockExit = jest.spyOn(process, 'exit').mockImplementation(() => {
+    // throw new Error('Boom!')
+  })
   await loader('http://www.example404.com', dir)
+  // await expect(loader('http://www.example404.com', dir)).rejects.toThrow('Boom!')
 
   await expect(mockExit).toHaveBeenCalledWith(2)
+  await expect(mockExit).toHaveBeenCalled()
   mockExit.mockRestore()
 })
 
@@ -48,7 +52,9 @@ test('errorSite 500', async () => {
 
   const mockExit = jest.spyOn(process, 'exit').mockImplementation(() => {})
   await loader('http://www.example500.com', dir)
+
   await expect(mockExit).toHaveBeenCalledWith(2)
+  await expect(mockExit).toHaveBeenCalled()
   mockExit.mockRestore()
 })
 

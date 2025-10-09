@@ -26,51 +26,44 @@ axiosDebug({
 })
 */
 const log = debug('page-loader')
+
+const loader = (url, outputDir) => {
+  log('"loader" started')
+  const p = pathForUrl(url, outputDir)
+
+  fsp.mkdir(p.fullDirPath)
+    .then(() => log('Created forder: ' + p.fullDirPath))
+    .catch(savingErrors)
+
+  return axios.get(url)
+    .then(response => response.data)
+    .then(html => loadResources(html, p))
+    .then(([fixedHtml, filePaths]) => {
+      writeFiles(filePaths)
+      return fsp.writeFile(p.filePath, fixedHtml)
+        .then(() => log('Created file: ' + p.filePath))
+        .catch(savingErrors)
+    })
+    .catch(err => axiosErrors(err, url))
+}
+
 /*
 const loader = async (url, outputDir) => {
   log('"loader" started')
   const p = pathForUrl(url, outputDir)
 
-  fsp.mkdir(p.fullDirPath)
-    .catch(savingErrors)
-    .then(() => log('Created forder: ' + p.fullDirPath))
+  await fsp.mkdir(p.fullDirPath).catch(savingErrors)
+  log('Created forder: ' + p.fullDirPath)
 
-  return axios.get(url)
-    .then(response => response.data)
+  const html = await axios.get(url)
+    .then(res => res.data)
     .catch(err => axiosErrors(err, url))
-    .then(html => loadResources(html, p))
-    .then(([fixedHtml, filepaths]) => {
-      fsp.writeFile(p.filePath, fixedHtml)
-        .catch(savingErrors)
-        .then(() => log('Created file: ' + p.filePath))
-      return writeFiles(filepaths)
-    })
+
+  const [fixedHtml, filePaths] = loadResources(html, p)
+
+  await fsp.writeFile(p.filePath, fixedHtml).catch(savingErrors)
+  log('Created file: ' + p.filePath)
+  await writeFiles(filePaths)
 }
 */
-
-async function loader(url, outputDir) {
-  log('"loader" started')
-  const p = pathForUrl(url, outputDir)
-
-  try {
-    await fsp.mkdir(p.fullDirPath).catch(savingErrors)
-    log('Created forder: ' + p.fullDirPath)
-
-    const html = await axios.get(url)
-      .then(res => res.data)
-      .catch(err => axiosErrors(err, url))
-
-    const [fixedHtml, filepaths] = await loadResources(html, p)
-
-    await fsp.writeFile(p.filePath, fixedHtml).catch(savingErrors)
-    log('Created file: ' + p.filePath)
-    await writeFiles(filepaths)
-
-    return { ok: true, filePath: p.filePath, dir: p.fullDirPath }
-  }
-  catch (err) {
-    return { ok: false, error: err }
-  }
-}
-
 export default loader

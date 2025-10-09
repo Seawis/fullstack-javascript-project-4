@@ -13,7 +13,7 @@ export default (html, p) => {
     script: 'src',
   }
 
-  const filepaths = Object.keys(linked).reduce((acc, res) => {
+  const filePaths = Object.keys(linked).reduce((acc, res) => {
     log(`loading "${res}"`)
 
     $(res).each((i, elem) => {
@@ -29,14 +29,16 @@ export default (html, p) => {
 
         const massOfUrl = {
           url: url,
-          filepath: `${p.dirPath}/${fileName}`,
+          filePath: `${p.dirPath}/${fileName}`,
           title: oldSrc,
         }
+
         acc.push(massOfUrl)
       }
     })
+
     return acc
   }, [])
 
-  return [$.html(), filepaths]
+  return [$.html(), filePaths]
 }
