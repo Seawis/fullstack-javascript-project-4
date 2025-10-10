@@ -35,7 +35,8 @@ const pathToDashed = (inputPath, hostname) => {
   const str = fName(name) + ext
   const prefix = hostname.replace(/[^a-zA-Z0-9]+/g, '-') // имя сайта
   // добавляем или удаляем имя сайта в имени
-  return str.startsWith(prefix) ? str.slice(prefix.length).replace(/^-/, '').replace(/-$/, '') : str
+  return str.startsWith(prefix) ? str : `${prefix}-${str}`
+  // return str.startsWith(prefix) ? str.slice(prefix.length).replace(/^-/, '').replace(/-$/, '') : str
 }
 
 export { pathForUrl, defaultDir, pathToDashed }

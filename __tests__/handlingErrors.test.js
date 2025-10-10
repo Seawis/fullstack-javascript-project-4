@@ -11,7 +11,7 @@ const log = debug('page-loader-test')
 
 let dir
 beforeEach(async () => {
-  nock.disableNetConnect()
+  // nock.disableNetConnect()
   dir = await fsp.mkdtemp(path.join(tmpdir(), 'page-loader-'))
   log(`Creating tempDir "${dir}" for "${expect.getState().currentTestName}"`)
 })
