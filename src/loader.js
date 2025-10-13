@@ -49,7 +49,7 @@ const loader = (url, outputDir) => {
 */
 
 const loader = async (url, outputDir) => {
-  log('"loader" started, ' + url + outputDir)
+  log(`"loader" started, ${url}, ${outputDir}`)
   const p = pathForUrl(url, outputDir)
 
   await fsp.mkdir(p.fullDirPath).catch(savingErrors)
