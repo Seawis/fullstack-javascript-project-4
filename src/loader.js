@@ -52,7 +52,7 @@ const loader = async (url, outputDir) => {
   log(`"loader" started, ${url}, ${outputDir}`)
   const p = pathForUrl(url, outputDir)
 
-  await fsp.mkdir(p.fullDirPath, { recursive: true }).catch(savingErrors)
+  await fsp.mkdir(p.fullDirPath).catch(savingErrors) // , { recursive: true }
   log('Created forder: ' + p.fullDirPath)
 
   const html = await axios.get(url)
