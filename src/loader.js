@@ -26,7 +26,7 @@ axiosDebug({
 })
 */
 const log = debug('page-loader')
-
+/*
 const loader = (url, outputDir) => {
   log('"loader" started')
   const p = pathForUrl(url, outputDir)
@@ -46,8 +46,8 @@ const loader = (url, outputDir) => {
     })
     .catch(err => axiosErrors(err, url))
 }
+*/
 
-/*
 const loader = async (url, outputDir) => {
   log('"loader" started')
   const p = pathForUrl(url, outputDir)
@@ -59,11 +59,20 @@ const loader = async (url, outputDir) => {
     .then(res => res.data)
     .catch(err => axiosErrors(err, url))
 
-  const [fixedHtml, filePaths] = loadResources(html, p)
+  if (typeof html === 'string') {
+    const [fixedHtml, filePaths] = loadResources(html, p)
 
-  await fsp.writeFile(p.filePath, fixedHtml).catch(savingErrors)
-  log('Created file: ' + p.filePath)
-  await writeFiles(filePaths)
+    try {
+      await fsp.access(p.fullDirPath)
+
+      await fsp.writeFile(p.filePath, fixedHtml).catch(savingErrors)
+      log('Created file: ' + p.filePath)
+      await writeFiles(filePaths)
+    }
+    catch {
+      console.error('cannot access')
+    }
+  }
 }
-*/
+
 export default loader
