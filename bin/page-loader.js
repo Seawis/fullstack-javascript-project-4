@@ -10,7 +10,7 @@ program
   .version('1.0.0')
 
   .argument('url', 'URL for saving')
-  .option('-o, --output [dir]', 'output dir', defaultDir('tmp'))
+  .option('-o, --output [dir]', 'output dir', defaultDir(''))
   .action((url) => {
     loader(url, program.opts().output)
   })
