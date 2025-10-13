@@ -12,7 +12,6 @@ program
   .argument('url', 'URL for saving')
   .option('-o, --output [dir]', 'output dir', defaultDir(''))
   .action((url) => {
-    console.log(program.opts().output)
     loader(url, program.opts().output)
   })
   .parse()
