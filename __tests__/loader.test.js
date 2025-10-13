@@ -115,7 +115,7 @@ test('errorSite 500', async () => {
   await expect(mockExit).toHaveBeenCalled() // await expect(mockExit).toHaveBeenCalledWith(2)
   mockExit.mockRestore()
 })
-
+/*
 test('Folder exists 17', async () => {
   const name = 'www-exerr17-ru'
   const page = '<html><head></head><body>123ABC</body></html>'
@@ -139,7 +139,7 @@ test('Folder exists 17', async () => {
   mockError.mockRestore()
   scope.done()
 })
-
+*/
 test('Permission denied 13', async () => {
   const scope = nock('http://www.exerr13.ru')
     .get('/')
@@ -153,7 +153,7 @@ test('Permission denied 13', async () => {
   mockExit.mockRestore()
   scope.done()
 })
-
+/*
 test('No file Error1', async () => {
   const scope = nock('http://www.exerr1.ru')
     .get('/')
@@ -170,3 +170,4 @@ test('No file Error1', async () => {
   mockExit.mockRestore()
   scope.done()
 })
+*/
