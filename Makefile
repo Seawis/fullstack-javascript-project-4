@@ -28,8 +28,5 @@ test-path:
 test-loader:
 	npx jest -- -t 'loader'
 
-test-error:
-	npx jest -- -t 'handling'
-
 test-write:
 	npx jest -- -t 'writeFiles'
