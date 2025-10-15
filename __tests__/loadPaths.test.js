@@ -4,17 +4,7 @@ import path, { dirname } from 'path'
 import { pathForUrl, pathToDashed } from '../src/loadPaths.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-/*
-const getFixturePath = filename =>
-  path.join(__dirname, '..', filename)
 
-test('defaultDir', () => {
-  expect(defaultDir('tmp')).toBe(getFixturePath('tmp'))
-  expect(defaultDir('./tmp/newFolder')).toBe(getFixturePath('tmp/newFolder'))
-  expect(defaultDir('/tmp')).toBe('/tmp')
-  expect(defaultDir('')).toBe(getFixturePath(''))
-})
-*/
 const expected = {
   dirName: 'ru-hexlet-io-courses_files',
   dirPath: '/tmp/ru-hexlet-io-courses_files',

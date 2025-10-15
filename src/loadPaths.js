@@ -1,13 +1,10 @@
 import path from 'path'
-// import process from 'process'
 
 const fName = href => href
   .replace(/^[a-zA-Z]+:\/\//, '') // убираем http:// или https://
   .replace(/[^a-zA-Z0-9]+/g, '-') // меняем все символы на -
   .replace(/^-/, '') // Убираем возможные начальные дефисы
   .replace(/-$/, '') // Убираем возможные конечные дефисы
-
-// const defaultDir = dirPath => path.resolve(process.cwd(), dirPath) // path.relative(process.cwd(), dirPath)
 
 const pathForUrl = (url, outputDir) => {
   const fileName = fName(url)
