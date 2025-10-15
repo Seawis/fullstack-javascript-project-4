@@ -49,9 +49,9 @@ const loader = (url, outputDir) => {
 */
 
 const loader = async (url, outputDir) => {
-  log(`"loader" started, ${url}, ${outputDir}`)
   const p = pathForUrl(url, outputDir)
-
+  log(`"loader" started, ${url}, ${outputDir}, ${p.fullDirPath}`)
+  // console.log(process.cwd())
   await fsp.mkdir(p.fullDirPath).catch(savingErrors) // , { recursive: true }
   log('Created forder: ' + p.fullDirPath)
 
